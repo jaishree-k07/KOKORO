@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kokoro – Find a Counsellor</title>
+<style>
+  body { margin: 0; font-family: 'Poppins', sans-serif; background: #E6D9FF; color: #2c2c2c; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  h2 { color: #4b3f72; margin: 0; }
+  .back { color: #9c7cff; text-decoration: none; font-weight: 600; }
+  .sub { color: #6b5b95; margin: 6px 0 18px; }
+  .filters { background: white; border-radius: 18px; padding: 16px; display: flex; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  select, input { padding: 10px 14px; border-radius: 12px; border: 1px solid #d8ccf5; font-family: inherit; font-size: 14px; outline: none; }
+  button { padding: 10px 20px; border: none; border-radius: 14px; background: #9c7cff; color: white; cursor: pointer; font-weight: 600; font-family: inherit; }
+  button:hover { background: #8359ff; }
+  button.ghost { background: #f1ebff; color: #6b4fd8; }
+  .tier { margin-top: 28px; }
+  .tier h3 { margin: 0 0 4px; color: #4b3f72; }
+  .tier .hint { margin: 0 0 12px; color: #7a6aa5; font-size: 13px; }
+  .badge { display: inline-block; background: #9c7cff; color: white; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; font-size: 14px; margin-right: 8px; }
+  .card { background: white; border-radius: 18px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .card h4 { margin: 0 0 2px; color: #4b3f72; }
+  .meta { font-size: 13px; color: #6b6b6b; line-height: 1.6; }
+  .tag { display: inline-block; background: #f1ebff; color: #6b4fd8; border-radius: 10px; padding: 2px 10px; font-size: 12px; margin-right: 6px; }
+  .right { text-align: right; font-size: 13px; }
+  .rating { font-weight: 700; color: #c98a00; font-size: 16px; }
+  .empty { text-align: center; color: #7a6aa5; margin-top: 30px; }
+  .note { margin-top: 30px; font-size: 12px; color: #7a6aa5; text-align: center; }
+  .crisis { background: #FFE5E5; border: 1px solid #C0392B; border-radius: 14px; padding: 10px 14px; font-size: 13px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h2>Find a Counsellor 🌿</h2>
+    <a class="back" href="dashboard.html">← Back</a>
+  </div>
+  <p class="sub">Counsellors ranked from closest to your area outwards, best‑rated first within each group.</p>
+
+  <div class="filters">
+    <select id="city"><option value="">Select your city</option></select>
+    <input id="area" placeholder="Your area (optional)">
+    <select id="spec">
+      <option value="">Any specialisation</option>
+      <option>Anxiety</option><option>Depression</option><option>Relationships</option>
+      <option>Trauma</option><option>Student</option>
+    </select>
+    <button onclick="search()">Search</button>
+    <button class="ghost" onclick="useLocation()">📍 Use my location</button>
+  </div>
+
+  <div class="crisis">If you're in immediate danger or thinking of harming yourself, please call your local emergency number right now (India: 112) or Tele‑MANAS 14416.</div>
+
+  <div id="results"></div>
+  <p class="note">Listings shown are demo data for this project. Please verify credentials before booking.</p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+requireLogin();
+const LEVELS = {
+  1: ["In your area", "Closest to you"],
+  2: ["In your city", "Short travel from you"],
+  3: ["In your state / region", "A bit further, worth the trip"],
+  4: ["Online / elsewhere", "Far from you, so consider an online session"]
+};
+let coords = null;
+
+async function init() {
+  try {
+    const cities = await API.get("/api/counsellors/cities");
+    const sel = document.getElementById("city");
+    cities.forEach(c => sel.add(new Option(c, c)));
+  } catch (e) { console.error(e); }
+}
+
+function useLocation() {
+  if (!navigator.geolocation) { alert("Location isn't supported in this browser."); return; }
+  navigator.geolocation.getCurrentPosition(
+    p => { coords = { lat: p.coords.latitude, lng: p.coords.longitude }; search(); },
+    () => alert("Couldn't get your location. Please choose your city instead.")
+  );
+}
+
+async function search() {
+  const q = new URLSearchParams();
+  const spec = document.getElementById("spec").value;
+  if (spec) q.set("specialization", spec);
+  if (coords && !document.getElementById("city").value) { q.set("lat", coords.lat); q.set("lng", coords.lng); }
+  else {
+    const city = document.getElementById("city").value;
+    if (!city) { alert("Select your city or use your location."); return; }
+    q.set("city", city);
+    const area = document.getElementById("area").value.trim();
+    if (area) q.set("area", area);
+  }
+  try { render(await API.get("/api/counsellors?" + q)); } catch (e) { alert(e.message); }
+}
+
+function esc(s) { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
+
+function render(list) {
+  const box = document.getElementById("results");
+  if (!list.length) { box.innerHTML = '<p class="empty">No counsellors found. Try another filter.</p>'; return; }
+  let html = "";
+  [1, 2, 3, 4].forEach(l => {
+    const items = list.filter(c => c.level === l);
+    if (!items.length) return;
+    html += `<div class="tier"><h3><span class="badge">${l}</span>${LEVELS[l][0]}</h3><p class="hint">${LEVELS[l][1]}</p>`;
+    items.forEach(c => {
+      html += `<div class="card">
+        <div>
+          <h4>${esc(c.name)}</h4>
+          <div class="meta">${esc(c.clinic)} · ${esc(c.area)}, ${esc(c.city)}</div>
+          <div style="margin-top:6px"><span class="tag">${esc(c.specialization)}</span>${c.online ? '<span class="tag">Online available</span>' : ""}</div>
+        </div>
+        <div class="right">
+          <div class="rating">★ ${c.rating.toFixed(1)}</div>
+          <div class="meta">${c.experienceYears} yrs · ₹${c.fee}/session</div>
+          ${c.distanceKm != null ? `<div class="meta">${c.distanceKm} km away</div>` : ""}
+          <div class="meta">📞 ${esc(c.phone)}</div>
+        </div></div>`;
+    });
+    html += "</div>";
+  });
+  box.innerHTML = html;
+}
+init();
+</script>
+</body>
+</html>

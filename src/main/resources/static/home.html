@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+  <title>Kokoro – Check‑in</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #E6D9FF;
+      padding: 40px 0;
+    }
+
+    .form-container {
+      width: 720px;
+      margin: auto;
+    }
+
+    .header {
+      background: #9C7CFF;
+      color: white;
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .header h2 { margin: 0; }
+    .header p { margin-top: 8px; }
+
+    .question-box {
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .question-box p {
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    button {
+      display: block;
+      margin: 30px auto;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 25px;
+      background: #9C7CFF;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="form-container">
+
+  <div class="header">
+    <h2>Kokoro Check‑in 🌸</h2>
+    <p>Answer gently — there are no right or wrong choices</p>
+  </div>
+
+  <form id="quiz">
+    <script>
+      const questions = [
+        "I feel comfortable being myself during the day",
+        "I feel calm when I wake up",
+        "I enjoy small daily activities",
+        "I feel connected to people around me",
+        "I feel relaxed most of the time",
+        "I can focus on what I’m doing",
+        "I feel hopeful about the coming days",
+        "I feel comfortable sharing thoughts",
+        "I feel balanced during the day",
+        "I feel patient with myself",
+        "I feel rested after sleep",
+        "I feel motivated to do daily tasks",
+        "I feel safe in my surroundings",
+        "I feel in control of my reactions",
+        "I feel light rather than heavy inside",
+        "I feel okay spending time alone",
+        "I feel supported",
+        "I feel steady during challenges",
+        "I feel okay asking for help when needed",
+        "I feel at ease right now"
+      ];
+
+      questions.forEach((q, i) => {
+        document.write(`
+          <div class="question-box">
+            <p>${i + 1}. ${q}</p>
+            <label><input type="radio" name="q${i}" value="0" required> Never</label>
+            <label><input type="radio" name="q${i}" value="1"> Sometimes</label>
+            <label><input type="radio" name="q${i}" value="2"> Often</label>
+            <label><input type="radio" name="q${i}" value="3"> Almost always</label>
+          </div>
+        `);
+      });
+    </script>
+
+    <button type="button" onclick="submitQuiz()">Continue</button>
+  </form>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+
+requireLogin();
+async function submitQuiz() {
+  let score = 0;
+  for (let i = 0; i < 20; i++) {
+    const ans = document.querySelector(`input[name="q${i}"]:checked`);
+    if (ans) score += parseInt(ans.value);
+  }
+  try {
+    await API.post("/api/checkin", { score });
+    window.location.href = "dashboard.html";
+  } catch (e) { alert(e.message); }
+}
+
+</script>
+
+</body>
+</html>

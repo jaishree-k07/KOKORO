@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+  <title>Kokoro</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #E6D9FF;
+      color: #2c2c2c;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: #E6D9FF;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      margin-left: 25px;
+      font-weight: bold;
+      color: #4b3f72;
+    }
+
+    /* HERO */
+    .hero {
+      height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 150px;
+      margin: 0;
+      color: #4b3f72;
+    }
+
+    .hero p {
+      font-size: 22px;
+      margin: 15px 0 30px;
+    }
+
+    .buttons button {
+      padding: 14px 28px;
+      margin: 10px;
+      border-radius: 25px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      background: #9C7CFF;
+      color: white;
+    }
+
+    /* ABOUT */
+    .about {
+      background: white;
+      padding: 70px;
+      text-align: center;
+    }
+
+    .about h2 {
+      font-size: 60px;
+      color: #4b3f72;
+    }
+
+    .about p {
+      max-width: 700px;
+      margin: auto;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .hero h2 {
+      font-size: 60px;
+      margin: 0;
+      color: #7463ad;
+    }
+    .penguin {
+    position: absolute;
+    bottom: 1%;
+    
+    right: 20px;
+    width: 250px;
+    animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <div class="navbar">
+    <h2 >Kokoro 🌸</h2>
+    <div>
+      <a href="#about">About</a>
+      <a href="login.html">Login</a>
+      <a href="signup.html">Sign Up</a>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <h2>Welcome to</h2>
+      <h1>KOKORO</h1>
+      <h3 color="#7463ad">FEEL ~ REFLECT ~ HEAL</h3>
+      <div class="buttons">
+        <button onclick="location.href='login.html'">Get Started</button>
+        <button onclick="location.href='#about'">About</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="about" id="about">
+   
+    <h2>About Kokoro</h2>
+    <p>
+      Kokoro is a safe, private space designed for emotional expression.
+      Through gentle AI companions and reflective interactions,
+      we help users understand their feelings without pressure or judgment.
+    </p>
+  </div>
+<img src="penguin1.webp" class="penguin" alt="Kokoro Penguin">
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dear Diary</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #E6D9FF;
+  }
+
+  .container {
+    display: flex;
+    height: 100vh;
+    padding: 30px;
+    box-sizing: border-box;
+  }
+
+  /* Left writing area */
+  .write-area {
+    flex: 2;
+    background: #F8F4FF;
+    border-radius: 20px;
+    padding: 30px;
+    margin-right: 20px;
+  }
+
+  .write-area h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 70%;
+    font-size: 18px;
+    padding: 20px;
+    border-radius: 15px;
+    border: none;
+    resize: none;
+    outline: none;
+    background: #ffffff;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 25px;
+    background: #9B7EDC;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #8666C5;
+  }
+
+  /* Right previous logs */
+  .logs {
+    flex: 1;
+    background: #F1E9FF;
+    border-radius: 20px;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .logs h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .log {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .date {
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #6A4FB6;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <!-- Writing section -->
+  <div class="write-area">
+    <h2>Dear Diary 💜</h2>
+    <p>Write whatever your heart feels today.</p>
+
+    <textarea id="diaryText" placeholder="Start writing here..."></textarea>
+    <br>
+    <button onclick="saveEntry()">Save Entry</button>
+  </div>
+
+  <!-- Previous logs -->
+  <div class="logs">
+    <h3>Previous Logs</h3>
+    <div id="logList"></div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+
+requireLogin();
+async function saveEntry() {
+  const text = document.getElementById("diaryText").value;
+  if (text.trim() === "") return;
+  try {
+    await API.post("/api/journal", { content: text });
+    document.getElementById("diaryText").value = "";
+    loadLogs();
+  } catch (e) { alert(e.message); }
+}
+
+async function loadLogs() {
+  const logList = document.getElementById("logList");
+  logList.innerHTML = "";
+  let logs = [];
+  try { logs = await API.get("/api/journal"); } catch (e) { console.error(e); }
+  logs.forEach(log => {
+    const div = document.createElement("div");
+    div.className = "log";
+    const date = document.createElement("div");
+    date.className = "date";
+    date.textContent = new Date(log.createdAt).toDateString();
+    const body = document.createElement("div");
+    body.textContent = log.content;
+    body.style.whiteSpace = "pre-wrap";
+    div.appendChild(date);
+    div.appendChild(body);
+    logList.appendChild(div);
+  });
+}
+loadLogs();
+
+</script>
+
+</body>
+</html>

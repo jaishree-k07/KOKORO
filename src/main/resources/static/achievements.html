@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Achievements</title>
+
+
+<style>
+  body {
+    background: #E6D9FF;
+    font-family: Poppins, sans-serif;
+    padding: 40px;
+  }
+
+  h1 {
+    font-size: 36px;
+  }
+
+  .box {
+    background: #F8F4FF;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+  }
+
+  button {
+    background: #C0392B;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>🏆 Achievements</h1>
+
+<div id="achievementsList"></div>
+
+<script src="js/api.js"></script>
+<script>
+
+requireLogin();
+async function deleteAchievement(id) {
+  try { await API.del("/api/achievements/" + id); } catch (e) { alert(e.message); }
+  loadAchievements();
+}
+
+async function loadAchievements() {
+  const list = document.getElementById("achievementsList");
+  list.innerHTML = "";
+  let items = [];
+  try { items = await API.get("/api/achievements"); } catch (e) { console.error(e); }
+  items.forEach(a => {
+    const div = document.createElement("div");
+    div.className = "box";
+    const span = document.createElement("span");
+    span.textContent = a.title;
+    const btn = document.createElement("button");
+    btn.textContent = "❌";
+    btn.onclick = () => deleteAchievement(a.id);
+    div.appendChild(span);
+    div.appendChild(btn);
+    list.appendChild(div);
+  });
+}
+loadAchievements();
+
+</script>
+
+
+
+</body>
+</html>

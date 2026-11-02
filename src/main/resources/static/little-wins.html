@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Little Wins</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #E6D9FF;
+  }
+
+  .container {
+    padding: 40px;
+    max-width: 900px;
+    margin: auto;
+  }
+
+  h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 18px;
+    color: #555;
+  }
+
+  .input-area {
+    margin: 25px 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  input {
+    flex: 1;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+  }
+
+  button {
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    background: #9B7EDC;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #8666C5;
+  }
+
+  .list {
+    background: #F8F4FF;
+    padding: 25px;
+    border-radius: 20px;
+    margin-top: 20px;
+  }
+
+  .item {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .item input {
+    transform: scale(1.3);
+    margin-right: 12px;
+  }
+
+  /* Penguin section */
+  .penguin-box {
+    margin-top: 40px;
+    text-align: center;
+    background: #F1E9FF;
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+  .penguin-box img {
+    width: 140px;
+    margin-bottom: 15px;
+  }
+
+  .quote {
+    font-size: 20px;
+    font-style: italic;
+    color: #6A4FB6;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🌸 Little Wins</h1>
+  <p>Even the smallest steps matter. Be gentle with yourself.</p>
+
+  <div class="input-area">
+    <input type="text" id="winInput" placeholder="Today I want to..." />
+    <button onclick="addWin()">Add</button>
+  </div>
+
+  <div class="list" id="winList"></div>
+
+  <div class="penguin-box">
+    <!-- Replace src with your penguin image -->
+    <img src="penguin.png" alt="Cute Penguin">
+    <div class="quote">
+      “Little dreams matter too. One step is enough today.”
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+
+requireLogin();
+async function addWin() {
+  const input = document.getElementById("winInput");
+  const text = input.value;
+  if (!text.trim()) return;
+  try {
+    await API.post("/api/wins", { text });
+    input.value = "";
+    loadWins();
+  } catch (e) { alert(e.message); }
+}
+
+async function completeWin(id) {
+  try { await API.put("/api/wins/" + id + "/complete"); } catch (e) { alert(e.message); }
+  loadWins();
+}
+
+async function loadWins() {
+  const list = document.getElementById("winList");
+  list.innerHTML = "";
+  let wins = [];
+  try { wins = await API.get("/api/wins"); } catch (e) { console.error(e); }
+  wins.forEach(w => {
+    const div = document.createElement("div");
+    div.className = "item";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.onclick = () => completeWin(w.id);
+    div.appendChild(cb);
+    div.appendChild(document.createTextNode(w.text));
+    list.appendChild(div);
+  });
+}
+loadWins();
+
+</script>
+
+
+</body>
+</html>
