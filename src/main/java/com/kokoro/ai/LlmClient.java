@@ -32,7 +32,7 @@ public class LlmClient {
         this.url = url.trim();
         this.model = model.trim();
 
-        System.out.println("AIMLAPI configured");
+        System.out.println("NVIDIA API configured");
         System.out.println("Model: " + this.model);
         System.out.println("API URL: " + this.url);
     }
@@ -43,7 +43,7 @@ public class LlmClient {
             String userMessage) {
 
         if (apiKey.isBlank()) {
-            return "I'm here with you 💜 Please configure the AIMLAPI API key.";
+            return "I'm here with you 💜 Please configure the NVIDIA API key.";
         }
 
         try {
@@ -81,7 +81,7 @@ public class LlmClient {
             Map<String, Object> request = Map.of(
                     "model", model,
                     "messages", msgs,
-                    "max_completion_tokens", 400
+                    "max_tokens", 400
             );
 
             JsonNode response = http.post()
@@ -99,7 +99,7 @@ public class LlmClient {
                     !response.path("choices").isArray() ||
                     response.path("choices").isEmpty()) {
 
-                System.err.println("AIMLAPI returned an empty response.");
+                System.err.println("NVIDIA returned an empty response.");
 
                 return "I'm here with you 💜 Could you tell me that again?";
             }
@@ -120,11 +120,11 @@ public class LlmClient {
         } catch (RestClientResponseException e) {
 
             System.err.println(
-                    "AIMLAPI HTTP error: " + e.getStatusCode()
+                    "NVIDIA HTTP error: " + e.getStatusCode()
             );
 
             System.err.println(
-                    "AIMLAPI response: " + e.getResponseBodyAsString()
+                    "NVIDIA response: " + e.getResponseBodyAsString()
             );
 
             return "I'm having trouble connecting right now. Please try again in a moment. 💜";
@@ -132,7 +132,7 @@ public class LlmClient {
         } catch (Exception e) {
 
             System.err.println(
-                    "AIMLAPI error: " + e.getMessage()
+                    "NVIDIA error: " + e.getMessage()
             );
 
             return "I'm having trouble connecting right now. Please try again in a moment. 💜";
